@@ -42,7 +42,7 @@ app.member = (function(){
                     });
                     if(checkval==true){
                         alert('SUCCESS!');
-                        app.reservation.onCreate();
+                        app.destination.onCreate();
                     }else{
                         alert('FAIL');
                         $('#id').val('');
@@ -77,12 +77,33 @@ app.member = (function(){
     };
     return{onCreate:onCreate};
 })();
-
-//arr[0] + (i)+1
+app.destination=(function(){
+    var onCreate = function() {
+        setContentView();
+    };
+    var setContentView = function () {
+        $('#content').html(app.compUI.ul('dest-list','list-group'));
+        var arr = ['la','tokyo','seoul','paris','london'];
+        var list = '';
+        $.each(arr,(i,y)=>{
+            list +='<li class="list-group-item" id="'+ arr[i] +'"><a onclick="app.destination.select('+arr[i]+')">'+ arr[i]+'</a></li>';
+        });
+        $('#dest-list').html(list);
+    };
+    var select=x=>{
+        alert('선택한 도시는 ' + x +'입니다.');
+        /*        var city =x.text().substring(0,1).toUpperCase() + x.text().substring(1);*/
+        app.cookie.setCoockie('dest',x);
+        app.reservation.onCreate();
+    };
+    return {onCreate:onCreate,select:select};
+})();
 app.reservation =(function(){
-    var onCreate = function(){setContentView();};
+    var onCreate = function(){
+        setContentView();
+        var id = '';
+    };
     var setContentView =function(){
-        $('#content').empty();
         $('#content').html(app.compUI.table('seat-table'));
         $('#seat-table').css({'border-collapse': 'collapse','width':'100%'})
         var arr = ['A','B','C','D','E'];
@@ -90,17 +111,44 @@ app.reservation =(function(){
         $.each(arr,(i,v)=>{
             tr += '<tr>'
             $.each(arr,(index,value)=>{
-                tr +='<td id="'+arr[i] +(index+1)+'">'+arr[i] +(index+1)+'</td>'
+                tr +='<td id="'+arr[i] +(index+1)+'"><a onclick="app.reservation.select('+ arr[i] +(index+1)+')">'+arr[i] +(index+1)+'</a></td>'
             });
             tr +='</tr>';
         });
         $('#seat-table').html(tr);
         $('tr').css({'border':'1px solid black','height':'50px','width':'100%'});
         $('td').css({'border':'1px solid black','height':'50px','width':'20%','text-align':'center'});
-
     };
-    return{onCreate:onCreate};
+    var select=x=>{
+        alert('예매된 도시는'+app.cookie.getCookie('dest')+'이고 좌석번호는 '+x+'입니다.');
+    };
+
+    return{onCreate:onCreate,select:select};
 })();
+app.cookie={
+    setCoockie:(k,v)=>{
+        document.cookie = k+"=" +v;
+    },
+    getCookie:k=>{
+        var x = k+ "=";
+        var i = 0;
+        var arr= document.cookie.split(';');
+        for(i=0;i<arr.length;i++){
+            var j = arr[i];
+            while(j.charAt(0)==''){
+                j=j.substring(1,j.length)
+            }
+            if(j.indexOf(x)==0){
+                return j.substring(x.length,j.length);
+            }
+            return null;
+        }
+
+    },
+    removeCookie: k=>{
+
+    }
+};
 app.compUI = {
     br    :()=>{return $('<br/>');},
     div   : x=>{return $('<div/>',{id:x});},
@@ -116,8 +164,8 @@ app.compUI = {
     input : (x,y)=>{return $('<input/>',{id:x,type:y});},
     btn : x=>{return $('<button>',{id:x})},
     nav: x=>{return $('<nav/>',{id: x});},
-    ul : x=>{return $('<ul/>',{id:x})},
-    li : ()=>{return $('<li/>')},
+    ul : (x,y)=>{return $('<ul/>',{id:x,class:y})},
+    li : (x,y)=>{return $('<li/>',{id:x,class:y})},
     a : ()=>{return $('<a/>',{href:'#'})}
 };
 $(function(){
