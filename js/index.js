@@ -86,7 +86,7 @@ app.destination=(function(){
         var arr = ['la','tokyo','seoul','paris','london'];
         var list = '';
         $.each(arr,(i,y)=>{
-            list +='<li class="list-group-item" id="'+ arr[i] +'"><a onclick="app.destination.select('+arr[i]+')">'+ arr[i]+'</a></li>';
+            list +='<li class="list-group-item" id="'+ arr[i] +'"><a onclick="app.destination.select('+'\''+arr[i]+'\')">'+ arr[i]+'</a></li>';
         });
         $('#dest-list').html(list);
     };
@@ -111,13 +111,90 @@ app.reservation =(function(){
         $.each(arr,(i,v)=>{
             tr += '<tr>'
             $.each(arr,(index,value)=>{
-                tr +='<td id="'+arr[i] +(index+1)+'"><a onclick="app.reservation.select('+ arr[i] +(index+1)+')">'+arr[i] +(index+1)+'</a></td>'
+                tr +='<td id="'+arr[i] +(index+1)+'"><a onclick="app.reservation.select('+'\''+ arr[i] +(index+1)+'\')">'+arr[i] +(index+1)+'</a></td>'
             });
             tr +='</tr>';
         });
         $('#seat-table').html(tr);
         $('tr').css({'border':'1px solid black','height':'50px','width':'100%'});
         $('td').css({'border':'1px solid black','height':'50px','width':'20%','text-align':'center'});
+        $('#content').append(app.compUI.div('select-date'));
+        $('#content').append(app.compUI.btn('calendar'));
+        $('#content').append(app.compUI.div('select-time'));
+        $('#content').append(app.compUI.input('clock','button'));
+        $('#calendar').css({'width':'100%'});
+        $('#select-date').text('날짜 선택하기');
+        $('#select-time').text('시간 선택하기');
+        $('#select-time').addClass('timepicker');
+        $('#select-date').click(e=>{
+                $('#calendar').datepicker({
+                 language:"kr",
+                format: "yyyy-mm-dd",
+                startDate : "+0d",
+                endDate : "+3d",
+                todayHighlight: true,
+                autoclose : true
+               });
+        });
+        $('#select-time').click(e=>{
+            $('#clock').timepicker({
+                timeFormat: 'h:mm p',
+                interval: 60,
+                minTime: '10',
+                maxTime: '6:00pm',
+                defaultTime: '11',
+                startTime: '10:00',
+                dynamic: false,
+                dropdown: true,
+                scrollbar: true
+            });
+        });
+        $('#content').append(app.compUI.btn('seeMap'));
+        $('#seeMap').addClass('btn btn-default').text('도시 지도 보기');
+        $('#content').append(app.compUI.div('bulb'));
+        $('#bulb').html(app.compUI.image('bulb-img','https://www.w3schools.com/js/pic_bulboff.gif'));
+        $('#content').append(app.compUI.btn('bulb-on'));
+        $('#bulb-on').addClass('btn btn-default').text('Turn On');
+        $('#content').append(app.compUI.btn('bulb-off'));
+        $('#bulb-off').addClass('btn btn-default').text('Turn Off');
+        $('#bulb-on').click(e=>{
+            $('#bulb').html(app.compUI.image('bulb-img','https://www.w3schools.com/js/pic_bulbon.gif'));
+        });
+        $('#bulb-off').click(e=>{
+            $('#bulb').html(app.compUI.image('bulb-img','https://www.w3schools.com/js/pic_bulboff.gif'));
+        });
+        $('#content').append(app.compUI.btn('regex'));
+        $('#regex').text('정규식을 해보자');
+        $('#regex').click(e=>{
+            $('#content').empty();
+            $('#content').append(app.compUI.h1('title'));
+            $('#title').text('정규식 샘플');
+            $('#content').append(app.compUI.input('only-num','text'));
+            $('#only-num').attr('placeholder','숫자만 입력');
+            $('#content').append(app.compUI.btn('test-num'));
+            $('#test-num').text('숫자테스트');
+            $('#content').append(app.compUI.br());
+            $('#content').append(app.compUI.input('pass-val','text'));
+            $('#pass-val').attr('placeholder','영문 대소문자, 숫자만 가능 4~10자 사이');
+            $('#content').append(app.compUI.btn('test-pass'));
+            $('#test-pass').text('비번 테스트');
+            $('#test-num').click(e=>{
+                if(app.valid.isNumber($('#only-num').val()*1)){
+                    alert($('#only-num').val());
+                }else{
+                    alert('숫자만 입력 가능');
+                    $('#only-num').val('');
+                }
+            });
+            $('#test-pass').click(e=>{
+                if(app.valid.pwChecker($('#pass-val').val())==='yes'){
+                    alert($('#pass-val').val());
+                }else{
+                    alert('비밀번호 조건이 다릅니다.');
+                    $('#pass-val').val('');
+                }
+            });
+        });
     };
     var select=x=>{
         alert('예매된 도시는'+app.cookie.getCookie('dest')+'이고 좌석번호는 '+x+'입니다.');
@@ -125,6 +202,14 @@ app.reservation =(function(){
 
     return{onCreate:onCreate,select:select};
 })();
+app.bulb={
+    bulbOn: e=>{
+
+    },
+    bulbOff:e=>{
+
+    }
+};
 app.cookie={
     setCoockie:(k,v)=>{
         document.cookie = k+"=" +v;
@@ -148,6 +233,16 @@ app.cookie={
     removeCookie: k=>{
 
     }
+};
+app.valid ={
+    isNumber : x=>{
+        return typeof x === 'number' && isFinite(x);
+    },
+    pwChecker : x=>{
+        var pw_regex = /^[0-9a-zA-Z]{4,10}$/;
+        return pw_regex.test(x)?"yes":"no";
+    }
+
 };
 app.compUI = {
     br    :()=>{return $('<br/>');},
